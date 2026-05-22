@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Browser Video OCR</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: Arial, sans-serif;
+      }
+
+      body {
+        margin: 0;
+        width: 280px;
+        padding: 16px;
+        box-sizing: border-box;
+        background: #f7f7f7;
+        color: #111;
+        font-family: Arial, sans-serif;
+      }
+
+      h1 {
+        margin: 0 0 10px;
+        font-size: 16px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 8px 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font: inherit;
+      }
+
+      button {
+        margin-top: 10px;
+        width: 100%;
+        padding: 8px 10px;
+        border: 0;
+        border-radius: 8px;
+        background: #111;
+        color: #fff;
+        font: inherit;
+        cursor: pointer;
+      }
+
+      p {
+        margin: 10px 0 0;
+        font-size: 13px;
+        line-height: 1.4;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Browser Video OCR</h1>
+    <label for="vision-key">Google Vision API key</label>
+    <input
+      id="vision-key"
+      type="password"
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <button id="save-key" type="button">Save key</button>
+    <p id="status">
+      Paused video frames will be sent to OCR after you save a key.
+    </p>
+    <script src="popup.js"></script>
+  </body>
+</html>
