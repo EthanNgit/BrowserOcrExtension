@@ -47,8 +47,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       return;
     }
 
-    const words = extractWords(data.responses[0].fullTextAnnotation);
-    sendResponse({ ok: true, words });
+    const items = extractParagraphs(data.responses[0].fullTextAnnotation);
+    sendResponse({ ok: true, items });
   })().catch((err) => {
     sendResponse({ ok: false, error: err?.message ?? "Unexpected error." });
   });
@@ -56,22 +56,28 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   return true;
 });
 
-function extractWords(annotation) {
-  const words = [];
+function extractParagraphs(annotation) {
+  const items = [];
 
   for (const page of annotation?.pages ?? []) {
     for (const block of page.blocks ?? []) {
       for (const paragraph of block.paragraphs ?? []) {
-        for (const word of paragraph.words ?? []) {
-          const text = (word.symbols ?? []).map((s) => s.text).join("");
-          const box = verticesToBox(word.boundingBox?.vertices);
-          if (text && box) words.push({ text, box });
-        }
+        const words = paragraph.words ?? [];
+        const text = words
+          .map((word) => (word.symbols ?? []).map((s) => s.text).join(""))
+          .filter(Boolean)
+          .join(" ");
+        const box =
+          verticesToBox(paragraph.boundingBox?.vertices) ||
+          mergeBoxes(
+            words.map((word) => verticesToBox(word.boundingBox?.vertices)),
+          );
+        if (text && box) items.push({ text, box });
       }
     }
   }
 
-  return words;
+  return items;
 }
 
 function verticesToBox(vertices = []) {
@@ -88,5 +94,22 @@ function verticesToBox(vertices = []) {
     top,
     width: Math.max(0, Math.max(...xs) - left),
     height: Math.max(0, Math.max(...ys) - top),
+  };
+}
+
+function mergeBoxes(boxes = []) {
+  const valid = boxes.filter(Boolean);
+  if (!valid.length) return null;
+
+  const left = Math.min(...valid.map((box) => box.left));
+  const top = Math.min(...valid.map((box) => box.top));
+  const right = Math.max(...valid.map((box) => box.left + box.width));
+  const bottom = Math.max(...valid.map((box) => box.top + box.height));
+
+  return {
+    left,
+    top,
+    width: Math.max(0, right - left),
+    height: Math.max(0, bottom - top),
   };
 }
